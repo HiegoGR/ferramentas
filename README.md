@@ -1,6 +1,12 @@
+
 Script `.bat` para instalação automática de ferramentas de desenvolvimento no Windows utilizando `winget`.
 
-[⬇️ Download do .bat](https://github.com/HiegoGR/ferramentas/raw/main/instalar-programas-dev-windows.bat)
+<p align="center">
+  <a href="https://github.com/HiegoGR/ferramentas/archive/refs/tags/v1.0.0.zip">
+    <img src="https://img.shields.io/badge/Download-Setup Ferramentas Dev-green?style=for-the-badge">
+  </a>
+</p>
+
 ---
 
 ## Funcionalidades
