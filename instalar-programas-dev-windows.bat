@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-title Instalador Ambiente Dev
+title Instalador de Programas
 color 0A
 
 :: =========================
@@ -22,6 +22,39 @@ if %errorlevel% neq 0 (
     echo Atualize o Windows App Installer pela Microsoft Store.
     pause
     exit /b
+)
+
+echo Atualizando fontes do Winget...
+winget source update
+echo.
+
+:: =========================
+:: MODO DE INSTALACAO
+:: =========================
+echo ==========================================
+echo        TIPO DE INSTALACAO
+echo ==========================================
+echo.
+echo 1 - Automatica (Silenciosa)
+echo 2 - Manual (Assistida)
+echo.
+
+set /p modo="Escolha uma opcao: "
+
+if "%modo%"=="1" (
+    set "INSTALL_MODE=--silent"
+    set "MODO_OK=1"
+)
+
+if "%modo%"=="2" (
+    set "INSTALL_MODE="
+    set "MODO_OK=1"
+)
+
+if not defined MODO_OK (
+    echo Opcao invalida.
+    pause
+    exit
 )
 
 :menu
@@ -52,7 +85,7 @@ goto menu
 :desenvolvimento
 cls
 echo ==========================================
-echo Instalando Ambiente de Desenvolvimento
+echo Ambiente de Desenvolvimento
 echo ==========================================
 echo.
 echo Serao instalados:
@@ -79,7 +112,7 @@ call :instalar "dbeaver.dbeaver" "DBeaver"
 call :instalar "Python.Python.3.12" "Python 3.12"
 
 echo.
-echo Ambiente de desenvolvimento instalado!
+echo Ambiente de desenvolvimento finalizado!
 pause
 goto menu
 
@@ -98,7 +131,7 @@ set /p util="Escolha uma opcao: "
 
 if "%util%"=="1" (
     call :instalar "Google.Chrome" "Google Chrome"
-    call :instalar "Mozilla.Firefox" "Mozilla Firefox"
+    call :instalar "Mozilla.Firefox.pt-BR" "Mozilla Firefox"
     call :instalar "IObit.DriverBooster" "Driver Booster"
     call :instalar "RevoUninstaller.RevoUninstaller" "Revo Uninstaller"
     call :instalar "REALiX.HWiNFO" "HWiNFO"
@@ -109,7 +142,7 @@ if "%util%"=="1" (
 
 if "%util%"=="2" (
     call :perguntar "Google.Chrome" "Google Chrome"
-    call :perguntar "Mozilla.Firefox" "Mozilla Firefox"
+    call :perguntar "Mozilla.Firefox.pt-BR" "Mozilla Firefox"
     call :perguntar "IObit.DriverBooster" "Driver Booster"
     call :perguntar "RevoUninstaller.RevoUninstaller" "Revo Uninstaller"
     call :perguntar "REALiX.HWiNFO" "HWiNFO"
@@ -146,16 +179,10 @@ if "%elet%"=="1" (
 )
 
 if "%elet%"=="2" (
-
-    echo.
-    echo 3.1 - KiCad
-    echo 3.2 - Arduino IDE
-    echo 3.3 - Fritzing
-    echo.
-
     call :perguntar "KiCad.KiCad" "KiCad"
     call :perguntar "ArduinoSA.IDE.stable" "Arduino IDE"
 
+    echo.
     set /p fritz="Deseja instalar Fritzing? (S/N): "
     if /I "%fritz%"=="S" (
         call :fritzing
@@ -188,16 +215,75 @@ goto menu
 
 :instalar
 echo.
+echo ==========================================
 echo Instalando %~2...
-winget install -e --id %~1 --silent ::--accept-package-agreements --accept-source-agreements
+echo ==========================================
+
+winget show -e --id %~1 --source winget >nul 2>nul
+
+if %errorlevel% neq 0 (
+    echo.
+    echo Pacote nao encontrado:
+    echo %~2
+    echo.
+    echo ID utilizado:
+    echo %~1
+    echo.
+    echo Tente pesquisar manualmente com:
+    echo winget search "%~2"
+    goto :eof
+)
+
+winget install -e --id %~1 --source winget %INSTALL_MODE% --accept-package-agreements --accept-source-agreements
+
+if %errorlevel% neq 0 (
+    echo.
+    echo Erro ao instalar %~2.
+) else (
+    echo.
+    echo %~2 instalado com sucesso.
+)
+
 goto :eof
 
 :perguntar
 echo.
 set /p escolha="Deseja instalar %~2? (S/N): "
+
 if /I "%escolha%"=="S" (
     call :instalar "%~1" "%~2"
 )
+
+goto :eof
+
+:fritzing
+echo.
+echo ==========================================
+echo Instalando Fritzing...
+echo ==========================================
+
+winget show -e --id Fritzing.Fritzing --source winget >nul 2>nul
+
+if %errorlevel% neq 0 (
+    echo.
+    echo Fritzing nao encontrado no Winget.
+    echo Abrindo site oficial...
+    start https://fritzing.org/download/
+    goto :eof
+)
+
+winget install -e --id Fritzing.Fritzing --source winget %INSTALL_MODE% --accept-package-agreements --accept-source-agreements
+
+if %errorlevel% neq 0 (
+    echo.
+    echo Erro ao instalar Fritzing.
+    echo Abrindo site oficial...
+    start https://fritzing.org/download/
+) else (
+    echo.
+    echo Fritzing instalado com sucesso.
+)
+
 goto :eof
 
 :sair
