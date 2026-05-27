@@ -3,9 +3,6 @@ chcp 65001 >nul
 title Instalador de Programas
 color 0A
 
-:: =========================
-:: EXECUTAR COMO ADMIN
-:: =========================
 NET SESSION >nul 2>&1
 IF %ERRORLEVEL% NEQ 0 (
     echo Solicitando permissao de administrador...
@@ -13,9 +10,6 @@ IF %ERRORLEVEL% NEQ 0 (
     exit /b
 )
 
-:: =========================
-:: VERIFICA WINGET
-:: =========================
 where winget >nul 2>nul
 if %errorlevel% neq 0 (
     echo Winget nao encontrado.
@@ -28,9 +22,6 @@ echo Atualizando fontes do Winget...
 winget source update
 echo.
 
-:: =========================
-:: MODO DE INSTALACAO
-:: =========================
 echo ==========================================
 echo        TIPO DE INSTALACAO
 echo ==========================================
@@ -129,33 +120,33 @@ echo.
 
 set /p util="Escolha uma opcao: "
 
-if "%util%"=="1" (
-    call :instalar "Google.Chrome" "Google Chrome"
-    call :instalar "Mozilla.Firefox.pt-BR" "Mozilla Firefox"
-    call :instalar "IObit.DriverBooster" "Driver Booster"
-    call :instalar "RevoUninstaller.RevoUninstaller" "Revo Uninstaller"
-    call :instalar "REALiX.HWiNFO" "HWiNFO"
-    call :instalar "CPUID.CPU-Z" "CPU-Z"
-    pause
-    goto menu
-)
-
-if "%util%"=="2" (
-    call :perguntar "Google.Chrome" "Google Chrome"
-    call :perguntar "Mozilla.Firefox.pt-BR" "Mozilla Firefox"
-    call :perguntar "IObit.DriverBooster" "Driver Booster"
-    call :perguntar "RevoUninstaller.RevoUninstaller" "Revo Uninstaller"
-    call :perguntar "REALiX.HWiNFO" "HWiNFO"
-    call :perguntar "CPUID.CPU-Z" "CPU-Z"
-    pause
-    goto menu
-)
-
+if "%util%"=="1" goto utilitarios_todos
+if "%util%"=="2" goto utilitarios_escolher
 if "%util%"=="0" goto menu
 
 echo Opcao invalida.
 pause
 goto utilitarios
+
+:utilitarios_todos
+call :instalar "Google.Chrome" "Google Chrome"
+call :instalar "Mozilla.Firefox.pt-BR" "Mozilla Firefox"
+call :instalar "IObit.DriverBooster" "Driver Booster"
+call :instalar "RevoUninstaller.RevoUninstaller" "Revo Uninstaller"
+call :instalar "REALiX.HWiNFO" "HWiNFO"
+call :instalar "CPUID.CPU-Z" "CPU-Z"
+pause
+goto menu
+
+:utilitarios_escolher
+call :perguntar "Google.Chrome" "Google Chrome"
+call :perguntar "Mozilla.Firefox.pt-BR" "Mozilla Firefox"
+call :perguntar "IObit.DriverBooster" "Driver Booster"
+call :perguntar "RevoUninstaller.RevoUninstaller" "Revo Uninstaller"
+call :perguntar "REALiX.HWiNFO" "HWiNFO"
+call :perguntar "CPUID.CPU-Z" "CPU-Z"
+pause
+goto menu
 
 :eletronica
 cls
@@ -170,33 +161,33 @@ echo.
 
 set /p elet="Escolha uma opcao: "
 
-if "%elet%"=="1" (
-    call :instalar "KiCad.KiCad" "KiCad"
-    call :instalar "ArduinoSA.IDE.stable" "Arduino IDE"
-    call :fritzing
-    pause
-    goto menu
-)
-
-if "%elet%"=="2" (
-    call :perguntar "KiCad.KiCad" "KiCad"
-    call :perguntar "ArduinoSA.IDE.stable" "Arduino IDE"
-
-    echo.
-    set /p fritz="Deseja instalar Fritzing? (S/N): "
-    if /I "%fritz%"=="S" (
-        call :fritzing
-    )
-
-    pause
-    goto menu
-)
-
+if "%elet%"=="1" goto eletronica_todos
+if "%elet%"=="2" goto eletronica_escolher
 if "%elet%"=="0" goto menu
 
 echo Opcao invalida.
 pause
 goto eletronica
+
+:eletronica_todos
+call :instalar "KiCad.KiCad" "KiCad"
+call :instalar "ArduinoSA.IDE.stable" "Arduino IDE"
+call :fritzing
+pause
+goto menu
+
+:eletronica_escolher
+call :perguntar "KiCad.KiCad" "KiCad"
+call :perguntar "ArduinoSA.IDE.stable" "Arduino IDE"
+
+echo.
+set /p fritz="Deseja instalar Fritzing? (S/N): "
+if /I "%fritz%"=="S" (
+    call :fritzing
+)
+
+pause
+goto menu
 
 :outros
 cls
@@ -209,17 +200,13 @@ echo.
 pause
 goto menu
 
-:: =========================
-:: FUNCOES
-:: =========================
-
 :instalar
 echo.
 echo ==========================================
 echo Instalando %~2...
 echo ==========================================
 
-winget show -e --id %~1 --source winget >nul 2>nul
+winget show -e --id "%~1" --source winget >nul 2>nul
 
 if %errorlevel% neq 0 (
     echo.
@@ -234,7 +221,7 @@ if %errorlevel% neq 0 (
     goto :eof
 )
 
-winget install -e --id %~1 --source winget %INSTALL_MODE% --accept-package-agreements --accept-source-agreements
+winget install -e --id "%~1" --source winget %INSTALL_MODE% --accept-package-agreements --accept-source-agreements
 
 if %errorlevel% neq 0 (
     echo.
@@ -262,7 +249,7 @@ echo ==========================================
 echo Instalando Fritzing...
 echo ==========================================
 
-winget show -e --id Fritzing.Fritzing --source winget >nul 2>nul
+winget show -e --id "Fritzing.Fritzing" --source winget >nul 2>nul
 
 if %errorlevel% neq 0 (
     echo.
@@ -272,7 +259,7 @@ if %errorlevel% neq 0 (
     goto :eof
 )
 
-winget install -e --id Fritzing.Fritzing --source winget %INSTALL_MODE% --accept-package-agreements --accept-source-agreements
+winget install -e --id "Fritzing.Fritzing" --source winget %INSTALL_MODE% --accept-package-agreements --accept-source-agreements
 
 if %errorlevel% neq 0 (
     echo.
